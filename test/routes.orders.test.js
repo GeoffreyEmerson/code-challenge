@@ -1,25 +1,35 @@
 const database = require('../src/database')
 const chai = require('chai')
-const chaiHttp = require('chai-http')
+const request = require('superagent')
 const app = require('../src/app')
 
 const assert = chai.assert
-chai.use(chaiHttp)
-const request = chai.request(app)
+
+const port = process.env.PORT || 3000
+let server
 
 const testOrder = {make: 'Tesla', model: 'Model S', package: 'P100D', customer_id: '1'}
 const badOrder = {make: 'Lamborghini', model: 'Centenario', package: '', customer_id: ''}
 
-before(done => {
-  database.startMock(done)
-})
-
 describe('orders endpoint', () => {
+  before(done => {
+    database.startMock(done)
+  })
+
+  before(done => {
+    server = app.listen(port, done)
+  })
+
+  after(done => {
+    server.close(done)
+  })
+
   it('returns order data on successful POST to orders route', done => {
     request
-    .post('/api/orders')
+    .post(`localhost:${port}/api/orders`)
     .send(testOrder)
-    .then(res => {
+    .end((err, res) => {
+      if (err) done(err)
       assert.equal(res.statusCode, 200)
       assert.include(res.header['content-type'], 'application/json')
       const order = JSON.parse(res.text)
@@ -29,44 +39,32 @@ describe('orders endpoint', () => {
       Object.keys(testOrder).forEach(key => assert.equal(testOrder[key], order[key]))
       done()
     })
-    .catch(err => {
-      done(err)
-    })
   })
 
   it('returns error on poorly formed POST to orders route', done => {
     request
-    .post('/api/orders')
+    .post(`localhost:${port}/api/orders`)
     .send(badOrder)
-    .then(response => {
-      done(response)
-    })
-    .catch(error => {
-      assert.equal(error.status, 400)
-      const errorObject = error.response.body
-      console.log('errorObject', errorObject)
+    .end((err, res) => {
+      assert.equal(err.status, 400)
+      const errorObject = err.response.body
       assert.equal(errorObject.message, 'Order validation failed')
       assert.deepEqual(errorObject.errors, [ 'Path `customer_id` is required.', 'Path `package` is required.' ])
       done()
-    })
-    .catch(err => {
-      done(err)
     })
   })
 
   it('returns list of saved orders from database on GET to orders route', done => {
     request
-    .get('/api/orders')
-    .then(res => {
+    .get(`localhost:${port}/api/orders`)
+    .end((err, res) => {
+      if (err) done(err)
       assert.equal(res.statusCode, 200)
       assert.include(res.header['content-type'], 'application/json')
       const orderList = JSON.parse(res.text)
       assert.equal(orderList.length, 1)
       Object.keys(testOrder).forEach(key => assert.equal(testOrder[key], orderList[0][key]))
       done()
-    })
-    .catch(err => {
-      done(err)
     })
   })
 })

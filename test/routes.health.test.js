@@ -1,15 +1,23 @@
 const chai = require('chai')
-const chaiHttp = require('chai-http')
+const request = require('superagent')
 const assert = chai.assert
 const app = require('../src/app')
 
-chai.use(chaiHttp)
-const request = chai.request(app)
+const port = process.env.PORT || 3000
+let server
 
 describe('healthcheck endpoint', () => {
+  before(done => {
+    server = app.listen(port, done)
+  })
+
+  after(done => {
+    server.close(done)
+  })
+
   it('returns status ok on GET to healthcheck route', done => {
     request
-      .get('/api/healthcheck')
+      .get(`localhost:${port}/api/healthcheck`)
       .end((err, res) => {
         if (err) return done(err)
         assert.equal(res.statusCode, 200)
