@@ -8,7 +8,7 @@ chai.use(chaiHttp)
 const request = chai.request(app)
 
 const testOrder = {make: 'Tesla', model: 'Model S', package: 'P100D', customer_id: '1'}
-const badOrder = {make: 'Lamborghini', model: 'Centenario', package: 'Roadster', customer_id: ''}
+const badOrder = {make: 'Lamborghini', model: 'Centenario', package: '', customer_id: ''}
 
 before(done => {
   database.startMock(done)
@@ -43,9 +43,10 @@ describe('orders endpoint', () => {
     })
     .catch(error => {
       assert.equal(error.status, 400)
-      const errorObject = JSON.parse(error.response.text)
-      assert.equal(errorObject.name, 'ValidationError')
-      assert.equal(errorObject.errors.customer_id.message, 'Path `customer_id` is required.')
+      const errorObject = error.response.body
+      console.log('errorObject', errorObject)
+      assert.equal(errorObject.message, 'Order validation failed')
+      assert.deepEqual(errorObject.errors, [ 'Path `customer_id` is required.', 'Path `package` is required.' ])
       done()
     })
     .catch(err => {

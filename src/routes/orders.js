@@ -17,5 +17,11 @@ module.exports = router
   new Order(req.body)
   .save()
   .then(savedOrder => res.send(savedOrder))
-  .catch(next)
+  .catch(err => {
+    const readableError = {
+      message: err.message,
+      errors: Object.keys(err.errors).map(key => err.errors[key].message)
+    }
+    next(readableError)
+  })
 })
