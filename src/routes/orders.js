@@ -1,8 +1,10 @@
 const express = require('express')
-const router = express.Router()
+const bodyparser = require('body-parser')
 
 const Order = require('../models/order')
-const bodyparser = require('body-parser')
+const suppliers = require('../requests/suppliers')
+
+const router = express.Router()
 const jsonParser = bodyparser.json()
 
 module.exports = router
@@ -16,7 +18,10 @@ module.exports = router
 .post('/', jsonParser, (req, res, next) => {
   new Order(req.body)
   .save()
-  .then(savedOrder => res.send(savedOrder))
+  .then(savedOrder => {
+    suppliers.placeOrders(savedOrder)
+    res.send(savedOrder)
+  })
   .catch(err => {
     const readableError = {
       message: err.message,
