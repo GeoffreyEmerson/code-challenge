@@ -29,6 +29,14 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "mongoose": "^4.9.9",
+    "q": "^1.5.0"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "it"
+    ]
   }
 }
