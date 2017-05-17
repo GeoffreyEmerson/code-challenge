@@ -19,5 +19,4 @@ describe('healthcheck endpoint', () => {
         done()
       })
   })
-
 })

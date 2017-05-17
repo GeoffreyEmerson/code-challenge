@@ -4,7 +4,7 @@ const Q = require('q')
 const Schema = mongoose.Schema
 mongoose.Promise = Q.promise
 
-const order = new Schema({
+const orderSchema = new Schema({
   make: {
     type: String,
     required: true
@@ -23,4 +23,4 @@ const order = new Schema({
   }
 }, { timestamps: true })
 
-module.exports = mongoose.model('Order', order)
+module.exports = mongoose.model('Order', orderSchema)
