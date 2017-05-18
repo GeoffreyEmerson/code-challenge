@@ -75,7 +75,6 @@ describe('orders endpoint', () => {
         const orderList = res.body
         assert.equal(orderList.length, 1)
         Object.keys(testOrder).forEach(key => assert.equal(testOrder[key], orderList[0][key]))
-        console.log('orderList', orderList)
         done()
       })
     }, 50)

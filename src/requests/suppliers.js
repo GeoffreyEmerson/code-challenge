@@ -31,17 +31,18 @@ const placeAcmeOrder = referenceOrder => {
     return Order.findByIdAndUpdate(internalOrderId, {$push: {externalRequests: savedRequest}}, {upsert: true, new: true})
   })
   .then(updatedOrder => {
-    console.log('updatedOrder', updatedOrder)
+    console.log('acmeRequest.url:', acmeRequest.url)
+    console.log('acmeRequest.parameters:', JSON.stringify(acmeRequest.parameters))
     return request
     .post(acmeRequest.url)
-    .set('content-type', 'x­-www­-form­-urlencoded')
-    .send(JSON.stringify(acmeRequest.parameters))
+    .type('form')
+    .send(acmeRequest.parameters)
   })
   .then(res => {
     // if (err) throw err
     // acmeRequest.pending = false
     // savedRequest.response =
-    console.log('acmeRequest', res.body)
+    // console.log('acmeRequest', res.body)
     // return acmeRequest.save()
   // })
   // .then(updatedOrder => {
@@ -71,7 +72,7 @@ const placeRainerOrder = referenceOrder => {
     return Order.findByIdAndUpdate(internalOrderId, {$push: {externalRequests: savedRequest}}, {upsert: true, new: true})
   })
   .then(updatedOrder => {
-    console.log('updatedOrder:', updatedOrder)
+    // console.log('updatedOrder:', updatedOrder)
     // simulate nonce_token interaction
   })
   .catch(err => {
