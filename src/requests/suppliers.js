@@ -10,11 +10,29 @@ const suppliers = {
   }
 }
 
+module.exports = suppliers
+
 const placeAcmeOrder = referenceOrder => {
-  const internalOrderId = referenceOrder._id
-  let externalRequestId
-  let acmeRequest = new ExternalRequest({
-    parentOrder: internalOrderId,
+  defineAcmeRequest(referenceOrder)
+  .save()
+  .then(saveReferenceInParentOrder)
+  .then(makeAcmeApiCall)
+  .then(saveResultOfExternalApiCall)
+  .catch(logApiError)
+}
+
+const placeRainerOrder = referenceOrder => {
+  defineRanierRequest(referenceOrder)
+  .save()
+  .then(saveReferenceInParentOrder)
+  .then(makeRanierApiCall)
+  .then(saveResultOfExternalApiCall)
+  .catch(logApiError)
+}
+
+const defineAcmeRequest = referenceOrder => {
+  return new ExternalRequest({
+    parentOrder: referenceOrder._id,
     company: 'ACME',
     url: 'http://localhost:3050/acme/api/v45.1',
     // TODO: calculate parameters from make and model in the original order
@@ -24,60 +42,61 @@ const placeAcmeOrder = referenceOrder => {
       package: 'std'
     }
   })
-  acmeRequest.save()
-  .then(savedRequest => {
-    externalRequestId = savedRequest._id
-    acmeRequest = savedRequest
-    return Order.findByIdAndUpdate(internalOrderId, {$push: {externalRequests: savedRequest}}, {upsert: true, new: true})
-  })
-  .then(updatedOrder => {
-    console.log('acmeRequest.url:', acmeRequest.url)
-    console.log('acmeRequest.parameters:', JSON.stringify(acmeRequest.parameters))
-    return request
-    .post(acmeRequest.url)
-    .type('form')
-    .send(acmeRequest.parameters)
-  })
-  .then(res => {
-    // if (err) throw err
-    // acmeRequest.pending = false
-    // savedRequest.response =
-    // console.log('acmeRequest', res.body)
-    // return acmeRequest.save()
-  // })
-  // .then(updatedOrder => {
-  //   console.log('updatedOrder:', updatedOrder)
-    // execute external API request
-  })
-  .catch(err => {
-    console.log('error saving acmeRequest:', err)
-  })
 }
 
-const placeRainerOrder = referenceOrder => {
-  const internalOrderId = referenceOrder._id
-  let externalRequestId
-  const rainerRequest = new ExternalRequest({
-    parentOrder: internalOrderId,
+const defineRanierRequest = referenceOrder => {
+  return new ExternalRequest({
+    parentOrder: referenceOrder._id,
     company: 'Rainer',
     url: 'http://localhost:3051/r',
     // TODO: calculate parameters from make and model in the original order
     parameters: {
-      storefront: 'ccas­bb9630c04f'
+      model: 'pugetsound',
+      custom: 'mtn'
     }
-  })
-  rainerRequest.save()
-  .then(savedRequest => {
-    externalRequestId = savedRequest._id
-    return Order.findByIdAndUpdate(internalOrderId, {$push: {externalRequests: savedRequest}}, {upsert: true, new: true})
-  })
-  .then(updatedOrder => {
-    // console.log('updatedOrder:', updatedOrder)
-    // simulate nonce_token interaction
-  })
-  .catch(err => {
-    console.log('error saving rainerRequest:', err)
   })
 }
 
-module.exports = suppliers
+const saveReferenceInParentOrder = externalRequest => {
+  Order.findByIdAndUpdate(
+    externalRequest.parentOrder._id,
+    {$push: {externalRequests: externalRequest}},
+    {upsert: true, new: true}
+  )
+  // We actually don't need to wait on the result of the above update, so we can move on
+  return Promise.resolve(externalRequest)
+}
+
+const makeAcmeApiCall = acmeRequest => {
+  return Promise.all([
+    request.post(acmeRequest.url + '/order').type('form').send(acmeRequest.parameters),
+    Promise.resolve(acmeRequest)
+  ])
+}
+
+const makeRanierApiCall = ranierRequest => {
+  return request
+  .get(ranierRequest.url + '/nonce_token')
+  .type('form')
+  .send({storefront: 'ccas­bb9630c04f'})
+  .then(result => {
+    ranierRequest.parameters.token = result.body.nonce_token
+    return Promise.all([
+      request
+      .post(ranierRequest.url + '/request_customized_model')
+      .type('form')
+      .send(ranierRequest.parameters),
+      Promise.resolve(ranierRequest)
+    ])
+  })
+}
+
+const saveResultOfExternalApiCall = ([result, externalRequest]) => {
+  externalRequest.pending = false
+  externalRequest.response = result.body
+  return externalRequest.save()
+}
+
+const logApiError = err => {
+  console.log('error processing externalRequest:', err)
+}
