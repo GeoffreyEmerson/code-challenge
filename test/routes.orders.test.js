@@ -81,18 +81,20 @@ describe('orders endpoint', () => {
   })
 
   it('makes external requests when a new internal order is posted', done => {
-    // request
-    // .post(`localhost:${port}/api/orders`)
-    // .send(testOrder2)
-    // .end((err, res) => {
-    //   if (err) done(err)
-    //   setTimeout(() => {
-    //     request
-    //     .get()
-    //     .end()
-    //     done()
-    //   }, 25)
-    // })
-    done()
+    request
+    .post(`localhost:${port}/api/orders`)
+    .send(testOrder2)
+    .then(res => {
+      const testId = res.body._id
+      setTimeout(() => {
+        request.get(`localhost:${port}/api/orders`)
+        .then(res => {
+          const orderResult = res.body.find(order => order._id === testId)
+          assert.equal(orderResult.externalRequests.length, 2)
+          done()
+        })
+      }, 25)
+    })
+    .catch(done)
   })
 })

@@ -59,10 +59,13 @@ const defineRanierRequest = referenceOrder => {
 
 const saveReferenceInParentOrder = externalRequest => {
   Order.findByIdAndUpdate(
-    externalRequest.parentOrder._id,
+    externalRequest.parentOrder,
     {$push: {externalRequests: externalRequest}},
     {upsert: true, new: true}
   )
+  .catch(err => {
+    console.log('error saving external request:', err)
+  })
   // We actually don't need to wait on the result of the above update, so we can move on
   return Promise.resolve(externalRequest)
 }
