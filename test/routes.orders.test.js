@@ -36,7 +36,7 @@ describe('orders endpoint', () => {
 
   it('returns order data on successful POST to orders route', done => {
     request
-    .post(`localhost:${port}/api/orders`)
+    .post(`localhost:${port}/api/order`)
     .send(testOrder)
     .end((err, res) => {
       if (err) done(err)
@@ -53,7 +53,7 @@ describe('orders endpoint', () => {
 
   it('returns error on poorly formed POST to orders route', done => {
     request
-    .post(`localhost:${port}/api/orders`)
+    .post(`localhost:${port}/api/order`)
     .send(badOrder)
     .end((err, res) => {
       assert.equal(err.status, 400)
@@ -82,17 +82,21 @@ describe('orders endpoint', () => {
 
   it('makes external requests when a new internal order is posted', done => {
     request
-    .post(`localhost:${port}/api/orders`)
+    .post(`localhost:${port}/api/order`)
     .send(testOrder2)
     .then(res => {
-      const testId = res.body._id
+      assert.equal(res.body.externalRequests.length, 2)
+
       setTimeout(() => {
-        request.get(`localhost:${port}/api/orders`)
+        return request.get(`localhost:${port}/api/orders`)
         .then(res => {
-          const orderResult = res.body.find(order => order._id === testId)
-          assert.equal(orderResult.externalRequests.length, 2)
+          res.body.forEach(order => {
+            order.externalRequests.forEach(request => {
+              assert.equal(request.pending, false)
+            })
+          })
           done()
-        })
+        }).catch(done)
       }, 25)
     })
     .catch(done)
