@@ -6,7 +6,7 @@ describe('order model', () => {
   const testOrder = {
     make: 'Tesla',
     model: 'Model S',
-    package: 'P100D',
+    package: 'gold',
     customer_id: '1'
   }
   const badOrder = {

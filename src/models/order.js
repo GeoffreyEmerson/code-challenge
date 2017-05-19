@@ -14,7 +14,8 @@ const orderSchema = new Schema({
   },
   package: {
     type: String,
-    required: true
+    enum: ['std', 'silver', 'gold'],
+    required: [true, 'Package must be "std", "silver", or "gold".']
   },
   customer_id: {
     type: String,

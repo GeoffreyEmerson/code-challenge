@@ -9,8 +9,9 @@ const assert = chai.assert
 const port = process.env.PORT || 3000
 let server, acmeServer, rainerServer
 
-const testOrder = {make: 'Tesla', model: 'Model S', package: 'P100D', customer_id: '1'}
-const testOrder2 = {make: 'Honda', model: 'Civic', package: 'Standard', customer_id: '2'}
+const testOrder = {make: 'Tesla', model: 'Model S', package: 'std', customer_id: '1'}
+const testOrder2 = {make: 'Honda', model: 'Civic', package: 'silver', customer_id: '2'}
+const testOrder3 = {make: 'Honda', model: 'Civic', package: 'gold', customer_id: '3'}
 const badOrder = {make: 'Lamborghini', model: 'Centenario', package: '', customer_id: ''}
 
 describe('orders endpoint', () => {
@@ -58,7 +59,7 @@ describe('orders endpoint', () => {
       const errorObject = err.response.body
       assert.equal(errorObject.message, 'Order validation failed')
       assert.equal(errorObject.errors.customer_id.message, 'Path `customer_id` is required.')
-      assert.equal(errorObject.errors.package.message, 'Path `package` is required.')
+      assert.equal(errorObject.errors.package.message, 'Package must be "std", "silver", or "gold".')
       done()
     })
   })
