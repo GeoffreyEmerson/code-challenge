@@ -33,7 +33,7 @@ function acmeHandler (req, res, next) {
 }
 
 function rainerTokenHandler (req, res, next) {
-  if (req.body && req.body.storefront === 'ccas­bb9630c04f') {
+  if (req.body && req.body.storefront === 'ccas­-bb9630c04f') {
     res.send({nonce_token: 'ff6bfd673ab6ae03d8911'})
   } else {
     res.send({error: 'Bad Request, expected storefront id', parameters: req.body})

@@ -132,7 +132,7 @@ const makeRanierApiCall = async ranierRequest => {
   return request
   .get(ranierRequest.url + '/nonce_token')
   .type('form')
-  .send({storefront: 'ccas­bb9630c04f'})
+  .send({storefront: 'ccas­-bb9630c04f'})
   .then(result => {
     ranierRequest.parameters.token = result.body.nonce_token
     return request
