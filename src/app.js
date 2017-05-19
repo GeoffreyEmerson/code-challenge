@@ -1,10 +1,17 @@
 const express = require('express')
-const app = express()
+const bodyparser = require('body-parser')
 
-const orders = require('./routes/orders')
+const orderHandlers = require('./handlers/orderHandlers')
 const errorHandler = require('./error-handler')
 
-module.exports = app
+const jsonParser = bodyparser.json()
+
+const app = express()
+
+app
 .get('/api/healthcheck', (req, res) => res.send({status: 'ok'}))
-.use('/api/orders', orders)
+.get('/api/orders', orderHandlers.getOrders)
+.post('/api/order', jsonParser, orderHandlers.postOrder)
 .use(errorHandler)
+
+module.exports = app

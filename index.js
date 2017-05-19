@@ -1,7 +1,8 @@
 const http = require('http')
 const database = require('./src/database')
-database.startMock()
 const app = require('./src/app')
+
+database.startMock() // switch this to .start() to use an actual mongo instance
 
 const port = process.env.PORT || 3000
 
