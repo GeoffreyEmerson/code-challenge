@@ -1,33 +1,85 @@
+// Overview of process included in this file:
+//
+// The two exposed methods are:
+//  - prepareExternalOrders
+//  - executeExternalOrders
+//
+// prepareExternalOrders will perform the following steps for each external API:
+//  - Create a customized Mongoose document
+//  - Save the document
+//  - Save a reference in the parent Order document
+//  - Return the parent Order document including the new references
+//
+// executeExternalOrders will perform the following steps for each reference:
+//  - Determine which external API to call
+//  - Perform the API call according to the procedure of the API
+//  - Save the response in the individual reference document
+//  - Return the completed parent document
+
 const request = require('superagent')
 
 const ExternalRequest = require('../models/request')
 const Order = require('../models/order')
 
-const suppliers = {
-  placeOrders: referenceOrder => {
-    placeAcmeOrder(referenceOrder)
-    placeRainerOrder(referenceOrder)
+const prepareExternalOrders = async referenceOrder => {
+  await prepareAcmeOrder(referenceOrder)
+  return prepareRainerOrder(referenceOrder)
+}
+
+const executeExternalOrders = async referenceOrder => {
+  await Promise.all(referenceOrder.externalRequests.map(externalRequest => {
+    if (externalRequest.company === 'ACME') {
+      return executeAcmeOrder(externalRequest)
+    } else if (externalRequest.company === 'Rainer') {
+      return executeRanierOrder(externalRequest)
+    } else {
+      Promise.resolve()
+    }
+  }))
+  return Order.findOne({_id: referenceOrder._id}).populate('externalRequests')
+}
+
+module.exports = {
+  prepareExternalOrders,
+  executeExternalOrders
+}
+
+const prepareAcmeOrder = async referenceOrder => {
+  try {
+    const acmeRequestUnsaved = defineAcmeRequest(referenceOrder)
+    const acmeRequestMongoDoc = await acmeRequestUnsaved.save()
+    return saveReferenceInParentOrder(acmeRequestMongoDoc)
+  } catch (error) {
+    logApiCallError(error)
   }
 }
 
-module.exports = suppliers
-
-const placeAcmeOrder = referenceOrder => {
-  defineAcmeRequest(referenceOrder)
-  .save()
-  .then(saveReferenceInParentOrder)
-  .then(makeAcmeApiCall)
-  .then(saveResultOfExternalApiCall)
-  .catch(logApiError)
+const executeAcmeOrder = async externalRequest => {
+  try {
+    const apiCallResult = await makeAcmeApiCall(externalRequest)
+    return saveResultOfExternalApiCall(apiCallResult, externalRequest)
+  } catch (error) {
+    logApiCallError(error)
+  }
 }
 
-const placeRainerOrder = referenceOrder => {
-  defineRanierRequest(referenceOrder)
-  .save()
-  .then(saveReferenceInParentOrder)
-  .then(makeRanierApiCall)
-  .then(saveResultOfExternalApiCall)
-  .catch(logApiError)
+const prepareRainerOrder = async referenceOrder => {
+  try {
+    const ranierRequestUnsaved = defineRanierRequest(referenceOrder)
+    const ranierRequestMongoDoc = await ranierRequestUnsaved.save()
+    return saveReferenceInParentOrder(ranierRequestMongoDoc)
+  } catch (error) {
+    logApiCallError(error)
+  }
+}
+
+const executeRanierOrder = async externalRequest => {
+  try {
+    const apiCallResult = await makeRanierApiCall(externalRequest)
+    return saveResultOfExternalApiCall(apiCallResult, externalRequest)
+  } catch (error) {
+    logApiCallError(error)
+  }
 }
 
 const defineAcmeRequest = referenceOrder => {
@@ -57,49 +109,45 @@ const defineRanierRequest = referenceOrder => {
   })
 }
 
-const saveReferenceInParentOrder = externalRequest => {
-  Order.findByIdAndUpdate(
+const saveReferenceInParentOrder = async externalRequest => {
+  return Order.findByIdAndUpdate(
     externalRequest.parentOrder,
     {$push: {externalRequests: externalRequest}},
     {upsert: true, new: true}
   )
+  .populate('externalRequests')
   .catch(err => {
     console.log('error saving external request:', err)
   })
-  // We actually don't need to wait on the result of the above update, so we can move on
-  return Promise.resolve(externalRequest)
 }
 
-const makeAcmeApiCall = acmeRequest => {
-  return Promise.all([
-    request.post(acmeRequest.url + '/order').type('form').send(acmeRequest.parameters),
-    Promise.resolve(acmeRequest)
-  ])
+const makeAcmeApiCall = async acmeRequest => {
+  return request
+  .post(acmeRequest.url + '/order')
+  .type('form')
+  .send(acmeRequest.parameters)
 }
 
-const makeRanierApiCall = ranierRequest => {
+const makeRanierApiCall = async ranierRequest => {
   return request
   .get(ranierRequest.url + '/nonce_token')
   .type('form')
   .send({storefront: 'ccas­bb9630c04f'})
   .then(result => {
     ranierRequest.parameters.token = result.body.nonce_token
-    return Promise.all([
-      request
-      .post(ranierRequest.url + '/request_customized_model')
-      .type('form')
-      .send(ranierRequest.parameters),
-      Promise.resolve(ranierRequest)
-    ])
+    return request
+    .post(ranierRequest.url + '/request_customized_model')
+    .type('form')
+    .send(ranierRequest.parameters)
   })
 }
 
-const saveResultOfExternalApiCall = ([result, externalRequest]) => {
+const saveResultOfExternalApiCall = async (result, externalRequest) => {
   externalRequest.pending = false
   externalRequest.response = result.body
   return externalRequest.save()
 }
 
-const logApiError = err => {
+const logApiCallError = err => {
   console.log('error processing externalRequest:', err)
 }
