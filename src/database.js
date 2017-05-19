@@ -13,7 +13,7 @@ const database = {
           console.log('Failed connecting to Mongodb!')
           done('database connection error')
         } else if (process.env.NODE_ENV !== 'test') { // for testing, success should be silent
-          console.log('Successfully connected to Mongodb on ' + dbURI)
+          console.log('Successfully connected to Mockgoose database on ' + dbURI)
         }
         if (done) done()
       })
