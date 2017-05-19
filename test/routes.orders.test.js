@@ -89,8 +89,45 @@ describe('orders endpoint', () => {
         request.get(`localhost:${port}/api/orders`)
         .then(res => {
           res.body.forEach(order => {
+            // get package type and check for matching external parts request
             order.externalRequests.forEach(request => {
-              assert.equal(request.pending, false)
+              if (request.company === 'ACME') {
+                switch (order.package) {
+                  case 'std':
+                    assert.equal(request.pending, false)
+                    assert.equal(request.parameters.model, 'anvil')
+                    assert.equal(request.parameters.package, 'std')
+                    break
+                  case 'silver':
+                    assert.equal(request.pending, false)
+                    assert.equal(request.parameters.model, 'wile')
+                    assert.equal(request.parameters.package, 'super')
+                    break
+                  case 'gold':
+                    assert.equal(request.pending, false)
+                    assert.equal(request.parameters.model, 'roadrunner')
+                    assert.equal(request.parameters.package, 'elite')
+                    break
+                }
+              } else if (request.company === 'Ranier') {
+                switch (order.package) {
+                  case 'std':
+                    assert.equal(request.pending, false)
+                    assert.equal(request.parameters.model, 'pugetsound')
+                    assert.equal(request.parameters.custom, 'mtn')
+                    break
+                  case 'silver':
+                    assert.equal(request.pending, false)
+                    assert.equal(request.parameters.model, 'olympic')
+                    assert.equal(request.parameters.custom, 'ltd')
+                    break
+                  case 'gold':
+                    assert.equal(request.pending, false)
+                    assert.equal(request.parameters.model, 'olympic')
+                    assert.equal(request.parameters.custom, '14k')
+                    break
+                }
+              }
             })
           })
           done()

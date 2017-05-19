@@ -83,6 +83,21 @@ const executeRanierOrder = async externalRequest => {
 }
 
 const defineAcmeRequest = referenceOrder => {
+  let model, package
+  switch (referenceOrder.package) {
+    case 'std':
+      model = 'anvil'
+      package = 'std'
+      break
+    case 'silver':
+      model = 'wile'
+      package = 'super'
+      break
+    case 'gold':
+      model = 'roadrunner'
+      package = 'elite'
+      break
+  }
   return new ExternalRequest({
     parentOrder: referenceOrder._id,
     company: 'ACME',
@@ -90,21 +105,35 @@ const defineAcmeRequest = referenceOrder => {
     // TODO: calculate parameters from make and model in the original order
     parameters: {
       api_key: 'cascade.53bce4f1dfa0fe8e7ca126f91b35d3a6',
-      model: 'anvil',
-      package: 'std'
+      model,
+      package
     }
   })
 }
 
 const defineRanierRequest = referenceOrder => {
+  switch (referenceOrder.package) {
+    case 'std':
+      model = 'pugetsound'
+      custom = 'mtn'
+      break
+    case 'silver':
+      model = 'olympic'
+      custom = 'ltd'
+      break
+    case 'gold':
+      model = 'olympic'
+      custom = '14k'
+      break
+  }
   return new ExternalRequest({
     parentOrder: referenceOrder._id,
     company: 'Rainer',
     url: 'http://localhost:3051/r',
     // TODO: calculate parameters from make and model in the original order
     parameters: {
-      model: 'pugetsound',
-      custom: 'mtn'
+      model,
+      custom
     }
   })
 }

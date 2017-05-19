@@ -26,7 +26,7 @@ function acmeHandler (req, res, next) {
     && ( (package === 'std') || (package === 'super') || (package === 'elite') )
   ) {
     const simulatedOrderNumber = Math.floor(Math.random() * 10000)
-    res.send({order: simulatedOrderNumber})
+    res.send({order: simulatedOrderNumber, details: {model, package}})
   } else {
     res.send({error: 'Bad request', parameters: req.body})
   }
@@ -48,7 +48,7 @@ function rainerHandler (req, res, next) {
     && ( (custom === 'mtn') || (custom === 'ltd') || (custom === '14k') )
   ) {
     const simulatedOrderNumber = Math.floor(Math.random() * 1000)
-    res.send({order_id: simulatedOrderNumber})
+    res.send({order_id: simulatedOrderNumber, details: {model, custom}})
   } else {
     res.send({error: 'Bad request', parameters: req.body})
   }
