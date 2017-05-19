@@ -34,7 +34,7 @@ describe('orders endpoint', () => {
     })
   })
 
-  it('returns order data on successful POST to orders route', done => {
+  it('returns indicator of success on well-formed POST to orders route', done => {
     request
     .post(`localhost:${port}/api/order`)
     .send(testOrder)
@@ -42,11 +42,9 @@ describe('orders endpoint', () => {
       if (err) done(err)
       assert.equal(res.statusCode, 200)
       assert.include(res.header['content-type'], 'application/json')
-      const order = res.body
-      // Since Mongo adds data to the object, the simplest way of testing equality
-      //  is to cycle through the original object's keys and check that they
-      //  made it into the saved document.
-      Object.keys(testOrder).forEach(key => assert.equal(testOrder[key], order[key]))
+      const response = res.body
+      assert.equal(response.status, 'success')
+      assert.ok(response.order)
       done()
     })
   })
@@ -59,7 +57,8 @@ describe('orders endpoint', () => {
       assert.equal(err.status, 400)
       const errorObject = err.response.body
       assert.equal(errorObject.message, 'Order validation failed')
-      assert.deepEqual(errorObject.errors, [ 'Path `customer_id` is required.', 'Path `package` is required.' ])
+      assert.equal(errorObject.errors.customer_id.message, 'Path `customer_id` is required.')
+      assert.equal(errorObject.errors.package.message, 'Path `package` is required.')
       done()
     })
   })
@@ -85,10 +84,8 @@ describe('orders endpoint', () => {
     .post(`localhost:${port}/api/order`)
     .send(testOrder2)
     .then(res => {
-      assert.equal(res.body.externalRequests.length, 2)
-
       setTimeout(() => {
-        return request.get(`localhost:${port}/api/orders`)
+        request.get(`localhost:${port}/api/orders`)
         .then(res => {
           res.body.forEach(order => {
             order.externalRequests.forEach(request => {
@@ -96,7 +93,8 @@ describe('orders endpoint', () => {
             })
           })
           done()
-        }).catch(done)
+        })
+        .catch(done)
       }, 25)
     })
     .catch(done)
