@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const Customer = require('./customer')
 
 const Schema = mongoose.Schema
 mongoose.Promise = Promise
@@ -18,7 +19,17 @@ const orderSchema = new Schema({
     required: [true, 'Package must be "std", "silver", or "gold".']
   },
   customer_id: {
-    type: String,
+    type: Schema.Types.ObjectId,
+    ref: 'Customer',
+    validate: {
+      isAsync: true,
+      validator: async (value, callback) => {
+        const customer = await Customer.findById(value)
+        const validCountries = ['US', 'USA'] // This list probably needs a better home
+        callback(validCountries.includes(customer.country))
+      },
+      message: 'Customer ID {VALUE} does not have a valid delivery destination!'
+    },
     required: true
   },
   externalRequests: [{

@@ -3,36 +3,43 @@ const chai = require('chai')
 const request = require('superagent')
 const app = require('../src/app')
 const mockServers = require('./mock.external-api')
+const Customer = require('../src/models/customer')
 
 const assert = chai.assert
 
 const port = process.env.PORT || 3000
 let server, acmeServer, rainerServer
 
-const testOrder = {make: 'Tesla', model: 'Model S', package: 'std', customer_id: '1'}
-const testOrder2 = {make: 'Honda', model: 'Civic', package: 'silver', customer_id: '2'}
-const testOrder3 = {make: 'Honda', model: 'Civic', package: 'gold', customer_id: '3'}
-const badOrder = {make: 'Lamborghini', model: 'Centenario', package: '', customer_id: ''}
+const testOrder = {make: 'Tesla', model: 'Model S', package: 'std'}
+const testOrder2 = {make: 'Honda', model: 'Civic', package: 'silver'}
+const testOrder3 = {make: 'Honda', model: 'Civic', package: 'gold'}
+const badOrder = {make: 'Lamborghini', model: 'Centenario', package: ''}
+const testCustomer = { name: 'Sally', address: '1234 Any St.', city: 'Eugene', state: 'OR', zip: '97401', country: 'USA' }
 
 describe('orders endpoint', () => {
   before(done => {
     database.startMock(done)
   })
 
-  before(done => {
-    server = app.listen(port, () => {
-      acmeServer = mockServers.acme.listen(3050, () => {
-        rainerServer = mockServers.rainer.listen(3051, done)
-      })
-    })
+  before(async () => {
+    const customer = await new Customer(testCustomer).save()
+    testOrder.customer_id = customer._id
+    testOrder2.customer_id = customer._id
+    testOrder3.customer_id = customer._id
+
+    await Promise.all([
+      server = app.listen(port),
+      acmeServer = mockServers.acme.listen(3050),
+      rainerServer = mockServers.rainer.listen(3051)
+    ])
   })
 
-  after(done => {
-    server.close(() => {
-      acmeServer.close(() => {
-        rainerServer.close(done)
-      })
-    })
+  after(async () => {
+    await Promise.all([
+      server.close(),
+      acmeServer.close(),
+      rainerServer.close()
+    ])
   })
 
   it('returns indicator of success on well-formed POST to orders route', done => {
