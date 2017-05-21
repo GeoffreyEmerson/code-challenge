@@ -29,6 +29,7 @@
     "superagent": "^3.5.2"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
     "mockgoose": "^7.3.1",
