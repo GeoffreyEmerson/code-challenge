@@ -11,6 +11,8 @@ let server, acmeServer, rainerServer
 
 describe('auth endpoints', () => {
   const user1 = { username: 'test-runner1', password: 'user-test-pass', email: 'user@mail.com' }
+  const user2 = { username: 'new-user', password: 'user-new-pass', confirmation: 'user-new-pass', email: 'newuser@mail.com' }
+  const badUser = { username: 'bad-user', password: 'user-pass', confirmation: '', email: 'baduser@mail.com' }
   let standardUser
 
   before(done => {
@@ -116,6 +118,43 @@ describe('auth endpoints', () => {
       assert.equal(response.body.message, 'Both email and password are required')
       assert.notOk(response.body.userToken)
     } catch (err) {
+      assert.notOk(err, err.message)
+    }
+  })
+
+  it('signup succeeds in POST on auth/signup route', async () => {
+    try {
+      await request
+        .post(`localhost:${port}/api/auth/signup`)
+        .send(user2)
+      const response = await request
+        .post(`localhost:${port}/api/auth/login`)
+        .send({email: user2.email, password: user2.password})
+      assert.equal(response.statusCode, 200)
+      assert.include(response.header['content-type'], 'application/json')
+      assert.equal(response.body.status, 'success')
+      assert.ok(response.body.userToken)
+    } catch (err) {
+      console.log('err', err)
+      assert.ok(err, err.message)
+    }
+  })
+
+  it('signup fails in POST on auth/signup route', async () => {
+    try {
+      let response = await request
+        .post(`localhost:${port}/api/auth/signup`)
+        .send(badUser)
+      assert.equal(response.statusCode, 200)
+      assert.include(response.header['content-type'], 'application/json')
+      assert.equal(response.body.status, 'fail')
+      // Double check that the user was not saved to DB
+      response = await request
+        .post(`localhost:${port}/api/auth/login`)
+        .send({email: badUser.email, password: badUser.password})
+      assert.notOk(response.body.userToken)
+    } catch (err) {
+      console.log('err', err)
       assert.notOk(err, err.message)
     }
   })

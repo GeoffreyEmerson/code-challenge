@@ -25,6 +25,39 @@ const sendFail = res => {
   res.send({status: 'fail', message: 'There was a problem with your email and/or password.'})
 }
 
+const signup = async (req, res, next) => {
+  const {username, email, password, confirmation} = req.body
+  if (!username || !email || !password || !confirmation) {
+    return res.send({
+      status: 'fail',
+      message: 'To sign up you must prove a username, email, and password.'
+    })
+  }
+  if (password !== confirmation) {
+    return res.send({
+      status: 'fail',
+      message: 'Your password and confirmation must match.'
+    })
+  }
+  let newUser, savedUser
+  try {
+    newUser = new User({username, email, password})
+    savedUser = await newUser.save()
+    if (savedUser._id) {
+      return res.send({
+        status: 'success',
+        message: 'New user created.'
+      })
+    }
+  } catch (err) {
+    console.log('New User Signup Error:', err)
+    return res.send({
+      status: 'fail',
+      message: 'Problem creating new user. Contact your admin.'
+    })
+  }
+}
+
 const checkAuth = async (req, res, next) => {
   const userToken = req.headers.token
 
@@ -73,5 +106,6 @@ const checkAuth = async (req, res, next) => {
 
 module.exports = {
   login,
+  signup,
   checkAuth
 }

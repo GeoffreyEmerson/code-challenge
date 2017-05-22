@@ -25,9 +25,13 @@ const UserSchema = new Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  // For demo purposes, approved is set to default true.
+  //  Adding any kind of additional steps to the user signup process
+  //  would include setting the default to false and later triggering
+  //  an approval process of some kind.
   approved: {
     type: Boolean,
-    default: false
+    default: true
   }
 })
 
