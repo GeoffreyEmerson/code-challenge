@@ -10,8 +10,9 @@ const assert = chai.assert
 
 const port = process.env.PORT || 3000
 let server, acmeServer, rainerServer
-let testToken
+let testToken, unauthorizedUserToken
 const testRunner = {username: 'test-runner', password: 'testing', email: 'email@mail.com', approved: true}
+const unauthorizedUser = {username: 'not-yet-auth', password: 'randompass', email: 'other@mail.com', approved: false}
 const testOrder = {make: 'Tesla', model: 'Model S', package: 'std'}
 const testOrder2 = {make: 'Honda', model: 'Civic', package: 'silver'}
 const testOrder3 = {make: 'Honda', model: 'Civic', package: 'gold'}
@@ -35,15 +36,20 @@ describe('orders endpoint', () => {
       rainerServer = mockServers.rainer.listen(3051)
     ])
 
-    // We need to set up an approved user for testing purposes.
+    // We need to set up users for testing purposes.
     const simulatedExistingUser = new User(testRunner)
-    await simulatedExistingUser.save()
+    const simulatedUnauthorizedUser = new User(unauthorizedUser)
+    await Promise.all([simulatedExistingUser.save(), simulatedUnauthorizedUser.save()])
     // The auth route is tested in another file. Here we just need it
-    //  to give us a valid token to test the order routes.
-    const response = await request
+    //  to give us tokens to test the order routes.
+    let response = await request
     .post(`localhost:${port}/api/auth`)
     .send({email: testRunner.email, password: testRunner.password})
     testToken = response.body.userToken
+    response = await request
+    .post(`localhost:${port}/api/auth`)
+    .send({email: unauthorizedUser.email, password: unauthorizedUser.password})
+    unauthorizedUserToken = response.body.userToken
   })
 
   after(async () => {
@@ -61,6 +67,20 @@ describe('orders endpoint', () => {
     assert.equal(result.statusCode, 200)
     assert.include(result.header['content-type'], 'application/json')
     assert.deepEqual([], result.body)
+  })
+
+  it('returns error for unauthorized user on GET route', async () => {
+    try {
+      const result = await request
+      .get(`localhost:${port}/api/orders`)
+      .set('token', unauthorizedUserToken)
+      assert.notOk(result)
+    } catch (err) {
+      assert.ok(err)
+      assert.equal(err.response.statusCode, 400)
+      assert.include(err.response.header['content-type'], 'application/json')
+      assert.equal(err.response.body.error, 'user not approved, please contact admin')
+    }
   })
 
   it('returns indicator of success on well-formed POST to orders route', async () => {

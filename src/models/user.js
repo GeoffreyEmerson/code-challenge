@@ -24,6 +24,10 @@ const UserSchema = new Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
+  },
+  approved: {
+    type: Boolean,
+    default: false
   }
 })
 
