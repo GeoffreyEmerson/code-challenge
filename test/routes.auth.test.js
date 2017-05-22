@@ -45,7 +45,7 @@ describe('auth endpoints', () => {
   it('properly formatted POST on auth route returns token', async () => {
     try {
       const response = await request
-        .post(`localhost:${port}/api/auth`)
+        .post(`localhost:${port}/api/auth/login`)
         .send({email: user1.email, password: user1.password})
       assert.equal(response.statusCode, 200)
       assert.include(response.header['content-type'], 'application/json')
@@ -60,7 +60,7 @@ describe('auth endpoints', () => {
     let response
     try {
       response = await request
-        .post(`localhost:${port}/api/auth`)
+        .post(`localhost:${port}/api/auth/login`)
         .send({email: user1.email, password: 'wrong_password'})
       assert.equal(response.statusCode, 200)
       assert.include(response.header['content-type'], 'application/json')
@@ -76,7 +76,7 @@ describe('auth endpoints', () => {
     let response
     try {
       response = await request
-        .post(`localhost:${port}/api/auth`)
+        .post(`localhost:${port}/api/auth/login`)
         .send({email: user1.email, password: ''})
       assert.equal(response.statusCode, 200)
       assert.include(response.header['content-type'], 'application/json')
@@ -92,7 +92,7 @@ describe('auth endpoints', () => {
     let response
     try {
       response = await request
-        .post(`localhost:${port}/api/auth`)
+        .post(`localhost:${port}/api/auth/login`)
         .send({email: 'bad@email.com', password: user1.password})
       assert.equal(response.statusCode, 200)
       assert.include(response.header['content-type'], 'application/json')
@@ -108,7 +108,7 @@ describe('auth endpoints', () => {
     let response
     try {
       response = await request
-        .post(`localhost:${port}/api/auth`)
+        .post(`localhost:${port}/api/auth/login`)
         .send({email: '', password: user1.password})
       assert.equal(response.statusCode, 200)
       assert.include(response.header['content-type'], 'application/json')

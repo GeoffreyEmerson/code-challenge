@@ -43,11 +43,11 @@ describe('orders endpoint', () => {
     // The auth route is tested in another file. Here we just need it
     //  to give us tokens to test the order routes.
     let response = await request
-    .post(`localhost:${port}/api/auth`)
+    .post(`localhost:${port}/api/auth/login`)
     .send({email: testRunner.email, password: testRunner.password})
     testToken = response.body.userToken
     response = await request
-    .post(`localhost:${port}/api/auth`)
+    .post(`localhost:${port}/api/auth/login`)
     .send({email: unauthorizedUser.email, password: unauthorizedUser.password})
     unauthorizedUserToken = response.body.userToken
   })
