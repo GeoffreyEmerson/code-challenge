@@ -2,10 +2,19 @@ const http = require('http')
 const database = require('./src/database')
 const app = require('./src/app')
 
-database.startMock() // switch this to .start() to use an actual mongo instance
-
 const port = process.env.PORT || 3000
+const nodeEnv = process.env.NODE_ENV || 'demo'
 
+if (nodeEnv === 'live') {
+  // a live environment uses a local Mongo database, which is usefull
+  //  for examining saved documents on the server during development
+  database.start()
+} else {
+  // startMock uses a Mockgoose database, which is default for this demo project
+  database.startMock()
+}
+
+// Start the main app API
 const server = http.createServer(app)
 server.listen(port, () => {
   console.log('Server running on', server.address())

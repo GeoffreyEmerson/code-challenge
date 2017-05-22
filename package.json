@@ -4,8 +4,9 @@
   "description": "A short code Node.js code challenge",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "NODE_ENV=test mocha --timeout 20000"
+    "start": "NODE_ENV=demo node index.js",
+    "test": "NODE_ENV=test mocha --timeout 120000",
+    "live": "NODE_ENV=live node index.js"
   },
   "repository": {
     "type": "git",
