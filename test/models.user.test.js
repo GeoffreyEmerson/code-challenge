@@ -20,81 +20,78 @@ describe('user model', () => {
     database.stop(done)
   })
 
-  it('validates', done => {
-    newUser1 = new User(testUser)
-    newUser1.validate(err => {
+  it('validates', async () => {
+    try {
+      newUser1 = new User(testUser)
+      await newUser1.validate()
+    } catch (err) {
       assert.notOk(err)
-      done()
-    })
+    }
   })
 
-  it('thows error for missing username', done => {
-    const newUser1 = new User(badUser)
-    newUser1.validate(err => {
+  it('thows error for missing username', async () => {
+    try {
+      newUser1 = new User(badUser)
+      await newUser1.validate()
+    } catch (err) {
       assert.ok(err)
       assert.equal(err.errors.username.message, 'Path `username` is required.')
-      done()
-    })
+    }
   })
 
-  it('thows error for missing password', done => {
-    const newUser1 = new User(badUser2)
-    newUser1.validate(err => {
+  it('thows error for missing password', async () => {
+    try {
+      newUser1 = new User(badUser2)
+      await newUser1.validate()
+    } catch (err) {
       assert.ok(err)
       assert.equal(err.errors.password.message, 'Path `password` is required.')
-      done()
-    })
+    }
   })
 
-  it('thows error for missing email', done => {
-    const newUser1 = new User(badUser3)
-    newUser1.validate(err => {
+  it('thows error for missing email', async () => {
+    try {
+      newUser1 = new User(badUser3)
+      await newUser1.validate()
+    } catch (err) {
       assert.ok(err)
       assert.equal(err.errors.email.message, 'Path `email` is required.')
-      done()
-    })
+    }
   })
 
-  it('comparePassword returns true with correct password', done => {
-    newUser1 = new User(testUser)
-    newUser1.save()
-    .then(savedUser => {
+  it('comparePassword returns true with correct password', async () => {
+    try {
+      newUser1 = new User(testUser)
+      const savedUser = await newUser1.save()
       testUser._id = savedUser._id
-      User.findById(testUser._id)
-      .then(foundUser => {
-        foundUser.comparePassword(testUser.password, (err, match) => {
-          if (err) done(err)
-          assert.equal(match, true)
-          done()
-        })
-      })
-    })
+      const foundUser = await User.findById(testUser._id)
+      const match = await foundUser.comparePassword(testUser.password)
+      assert.equal(match, true)
+    } catch (err) {
+      assert.notOk(err)
+    }
   })
 
-  it('comparePassword returns false with bad password', done => {
-    User.findById(testUser._id)
-    .then(foundUser => {
-      foundUser.comparePassword('wrongpass', (err, match) => {
-        if (err) done(err)
-        assert.equal(match, false)
-        done()
-      })
-    })
+  it('comparePassword returns false with bad password', async () => {
+    try {
+      const foundUser = await User.findById(testUser._id)
+      const match = await foundUser.comparePassword('wrongpass')
+      assert.equal(match, false)
+    } catch (err) {
+      assert.notOk(err)
+    }
   })
 
-  it('does not store plaintext password', done => {
-    const newUser2 = new User(testUser2)
-    newUser2.save()
-    .then(savedUser2 => {
-      User.findById(savedUser2._id)
-      .then(foundUser2 => {
-        foundUser2.comparePassword(testUser2.password, (err, match) => {
-          if (err) throw err
-          assert.equal(match, true)
-          assert.notEqual(foundUser2.password, testUser2.password)
-          done()
-        })
-      })
-    })
+  it('does not store plaintext password', async () => {
+    try {
+      const newUser2 = new User(testUser2)
+      const savedUser2 = await newUser2.save()
+      const foundUser2 = await User.findById(savedUser2._id)
+      const match = await foundUser2.comparePassword(testUser2.password)
+      assert.equal(match, true)
+      assert.notEqual(foundUser2.password, testUser2.password)
+    } catch (err) {
+      assert.notOk(err)
+    }
   })
 })
