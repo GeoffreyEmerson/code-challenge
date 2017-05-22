@@ -9,7 +9,7 @@ const assert = chai.assert
 const port = process.env.PORT || 3000
 let server, acmeServer, rainerServer
 
-describe.only('auth endpoints', () => {
+describe('auth endpoints', () => {
   const user1 = { username: 'test-runner1', password: 'user-test-pass', email: 'user@mail.com' }
   let standardUser
 

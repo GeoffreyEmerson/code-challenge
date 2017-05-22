@@ -15,16 +15,16 @@ describe('healthcheck endpoint', () => {
     server.close(done)
   })
 
-  it('returns status ok on GET to healthcheck route', done => {
-    request
+  it('returns status ok on GET to healthcheck route', async () => {
+    try {
+      const result = await request
       .get(`localhost:${port}/api/healthcheck`)
-      .end((err, res) => {
-        if (err) return done(err)
-        assert.equal(res.statusCode, 200)
-        assert.include(res.header['content-type'], 'application/json')
-        const result = JSON.parse(res.text)
-        assert.equal(result.status, 'ok')
-        done()
-      })
+      assert.equal(result.statusCode, 200)
+      assert.include(result.header['content-type'], 'application/json')
+      assert.equal(result.body.status, 'ok')
+    } catch (err) {
+      console.log('err', err)
+      assert.notOk(err)
+    }
   })
 })
