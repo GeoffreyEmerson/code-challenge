@@ -32,6 +32,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.17.1",
     "express": "^4.15.2",
+    "jsonwebtoken": "^7.4.1",
     "mockgoose": "^7.3.1",
     "mongoose": "^4.9.9",
     "q": "^1.5.0"
