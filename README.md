@@ -9,7 +9,7 @@ Date: May 16th - 22nd, 2017
 
 ## Installation
 
-This app was build and tested on OSX.
+This app was built and tested on OSX.
 
 1. Clone this repo to your local drive, then navigate into the directory.
 1. Run `npm install` to set up packages.
