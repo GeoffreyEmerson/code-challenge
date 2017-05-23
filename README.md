@@ -21,7 +21,7 @@ This app was build and tested on OSX.
 
 Access to the API is only open to authorized user accounts.
 
-The demo provides existing an user to sign with, or you can create your own user.
+The demo provides an example user to sign with, or you can create your own user.
 
 ### Login:
 
@@ -38,7 +38,7 @@ Curl example:
 curl -X POST http://localhost:3000/api/auth/login -H "Content-Type: application/json" -d '{"email": "sally@ccas.site","password": "CorrectHorseBatteryStaple"}' 
 ```
 
-This will return a token that is required to access other routes.
+This will return a token string that is required to access other routes. A fresh token is required. The tokens provided in examples will need to be replaced by a new token.
 
 ### Signup:
 
@@ -61,7 +61,7 @@ Note that after signing up as a new user, you will still have to log in. Potenti
 
 ### Customers:
 
-GET to 'localhost:3000/api/customers' with a valid token in the header will return a list of current customers in the database. Example with curl:
+GET to 'localhost:3000/api/customers' with a valid token in the header will return a list of current customers in the database.
 
 ```
 curl http://localhost:3000/api/customers -H "token:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU5MjNhM2Q0MjljOTUxMjhiOTk2Njc2NCIsInVzZXJuYW1lIjoiU2FsbHkiLCJlbWFpbCI6InNhbGx5QGNjYXMuc2l0ZSIsImlhdCI6MTQ5NTUwNzk0OH0.xeQOrj-YrsWoLYv9QR2934aRNrmirzDw0GnmbWse-pw"
