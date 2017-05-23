@@ -3,7 +3,6 @@ const chai = require('chai')
 const request = require('superagent')
 const app = require('../src/app')
 const mockServers = require('./mock.external-api')
-const Customer = require('../src/models/customer')
 const User = require('../src/models/user')
 
 const assert = chai.assert
@@ -32,7 +31,6 @@ describe('customers endpoint', () => {
         acmeServer = mockServers.acme.listen(3050),
         rainerServer = mockServers.rainer.listen(3051)
       ])
-
       // We need to set up users for testing purposes.
       const simulatedExistingUser = new User(testRunner)
       const simulatedUnauthorizedUser = new User(unauthorizedUser)
@@ -48,7 +46,7 @@ describe('customers endpoint', () => {
       .send({email: unauthorizedUser.email, password: unauthorizedUser.password})
       unauthorizedUserToken = response.body.userToken
     } catch (err) {
-      console.log('Problem starting servers in customers endpoint before all')
+      console.log('Problem preparing for tests in customers endpoint before all')
       console.log('err:', err)
     }
   })
