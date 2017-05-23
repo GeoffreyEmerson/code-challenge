@@ -4,6 +4,7 @@ const cors = require('cors')
 
 const orderHandlers = require('./handlers/orderHandlers')
 const authHandlers = require('./handlers/authHandlers')
+const customersRoutes = require('./routers/customers')
 const authRoutes = require('./routers/auth')
 const errorHandler = require('./error-handler')
 
@@ -16,6 +17,7 @@ app
 .get('/api/healthcheck', (req, res) => res.send({status: 'ok'}))
 .get('/api/orders', authHandlers.checkAuth, orderHandlers.getOrders)
 .post('/api/order', jsonParser, authHandlers.checkAuth, orderHandlers.postOrder)
+.use('/api/customers', jsonParser, authHandlers.checkAuth, customersRoutes)
 .use('/api/auth', jsonParser, authRoutes)
 .use(errorHandler)
 
