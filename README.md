@@ -1,13 +1,15 @@
 # Code Challenge
 
 Author: Geoffrey Emerson  
-Date: May 16th, 2017
+Date: May 16th - 22nd, 2017
 
 ## Prerequisites
 
 * [node.js](https://nodejs.org/en/)
 
 ## Installation
+
+This app was build and tested on OSX.
 
 1. Clone this repo to your local drive, then navigate into the directory.
 1. Run `npm install` to set up packages.
