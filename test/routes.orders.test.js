@@ -112,7 +112,8 @@ describe('orders endpoint', () => {
     } catch (err) {
       assert.equal(err.status, 400)
       const errorObject = err.response.body
-      assert.equal(errorObject.message, 'Order validation failed')
+      const errorMessage = (errorObject._message) ? errorObject._message : errorObject.message
+      assert.equal(errorMessage, 'Order validation failed')
       assert.equal(errorObject.errors.customer_id.message, 'Path `customer_id` is required.')
       assert.equal(errorObject.errors.package.message, 'Package must be "std", "silver", or "gold".')
     }
