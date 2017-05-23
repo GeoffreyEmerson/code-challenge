@@ -54,7 +54,7 @@ describe('auth endpoints', () => {
       assert.equal(response.body.status, 'success')
       assert.ok(response.body.userToken)
     } catch (err) {
-      assert.notOk(err, err.message)
+      throw err
     }
   })
 
@@ -70,7 +70,7 @@ describe('auth endpoints', () => {
       assert.equal(response.body.message, 'There was a problem with your email and/or password.')
       assert.notOk(response.body.userToken)
     } catch (err) {
-      assert.notOk(err, err.message)
+      throw err
     }
   })
 
@@ -86,7 +86,7 @@ describe('auth endpoints', () => {
       assert.equal(response.body.message, 'Both email and password are required')
       assert.notOk(response.body.userToken)
     } catch (err) {
-      assert.notOk(err, err.message)
+      throw err
     }
   })
 
@@ -102,7 +102,7 @@ describe('auth endpoints', () => {
       assert.equal(response.body.message, 'There was a problem with your email and/or password.')
       assert.notOk(response.body.userToken)
     } catch (err) {
-      assert.notOk(err, err.message)
+      throw err
     }
   })
 
@@ -118,7 +118,7 @@ describe('auth endpoints', () => {
       assert.equal(response.body.message, 'Both email and password are required')
       assert.notOk(response.body.userToken)
     } catch (err) {
-      assert.notOk(err, err.message)
+      throw err
     }
   })
 
@@ -135,8 +135,7 @@ describe('auth endpoints', () => {
       assert.equal(response.body.status, 'success')
       assert.ok(response.body.userToken)
     } catch (err) {
-      console.log('err', err)
-      assert.ok(err, err.message)
+      throw err
     }
   })
 
@@ -154,8 +153,7 @@ describe('auth endpoints', () => {
         .send({email: badUser.email, password: badUser.password})
       assert.notOk(response.body.userToken)
     } catch (err) {
-      console.log('err', err)
-      assert.notOk(err, err.message)
+      throw err
     }
   })
 })

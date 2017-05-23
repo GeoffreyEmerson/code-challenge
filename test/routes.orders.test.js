@@ -24,6 +24,10 @@ describe('orders endpoint', () => {
     database.startMock(done)
   })
 
+  after(done => {
+    database.stop(done)
+  })
+
   before(async () => {
     const customer = await new Customer(testCustomer).save()
     testOrder.customer_id = customer._id

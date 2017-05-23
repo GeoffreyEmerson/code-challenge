@@ -25,7 +25,7 @@ describe('user model', () => {
       newUser1 = new User(testUser)
       await newUser1.validate()
     } catch (err) {
-      assert.notOk(err)
+      throw err
     }
   })
 
@@ -68,7 +68,7 @@ describe('user model', () => {
       const match = await foundUser.comparePassword(testUser.password)
       assert.equal(match, true)
     } catch (err) {
-      assert.notOk(err)
+      throw err
     }
   })
 
@@ -78,7 +78,7 @@ describe('user model', () => {
       const match = await foundUser.comparePassword('wrongpass')
       assert.equal(match, false)
     } catch (err) {
-      assert.notOk(err)
+      throw err
     }
   })
 
@@ -91,7 +91,7 @@ describe('user model', () => {
       assert.equal(match, true)
       assert.notEqual(foundUser2.password, testUser2.password)
     } catch (err) {
-      assert.notOk(err)
+      throw err
     }
   })
 })
