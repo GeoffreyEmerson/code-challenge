@@ -7,6 +7,7 @@ const authHandlers = require('./handlers/authHandlers')
 const customersRoutes = require('./routers/customers')
 const authRoutes = require('./routers/auth')
 const errorHandler = require('./error-handler')
+const fourOhFour = require('./fourohfour')
 
 const jsonParser = bodyparser.json()
 
@@ -20,5 +21,6 @@ app
 .use('/api/customers', jsonParser, authHandlers.checkAuth, customersRoutes)
 .use('/api/auth', jsonParser, authRoutes)
 .use(errorHandler)
+.use(fourOhFour)
 
 module.exports = app
