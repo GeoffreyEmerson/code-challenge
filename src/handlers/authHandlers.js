@@ -93,7 +93,7 @@ const checkAuth = async (req, res, next) => {
     })
   }
 
-  if (!foundUser.approved) {
+  if (!foundUser || !foundUser.approved) {
     return next({
       code: 403,
       error: 'user not approved, please contact admin'
