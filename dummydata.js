@@ -2,7 +2,6 @@ const request = require('superagent')
 
 const User = require('./src/models/user')
 const Customer = require('./src/models/customer')
-const Order = require('./src/models/order')
 
 const port = process.env.PORT || 3000
 
@@ -46,7 +45,7 @@ const loadDummyData = async () => {
 
     console.log('Demo data loaded.')
   } catch (err) {
-    console.log('Error creating demo data.')
+    console.log('Error creating demo data:', err)
   }
 }
 

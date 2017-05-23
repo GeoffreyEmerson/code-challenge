@@ -41,40 +41,39 @@ describe('order model', () => {
 
   it('validates well formed order', async () => {
     let customer = new Customer(testCustomer)
-    customer = await customer.save()
-    testOrder.customer_id = customer._id
     try {
+      customer = await customer.save()
+      testOrder.customer_id = customer._id
       const order = new Order(testOrder)
-      await order.validate()
+      const error = order.validateSync()
+      assert.notOk(error)
     } catch (err) {
-      console.log('error:', err)
       throw err
     }
   })
 
   it('errors when missing customer_id field', async () => {
-    let customer = new Customer(testCustomer)
-    customer = await customer.save()
-    testOrder.customer_id = customer._id
     try {
       const order = new Order(badOrder)
-      await order.validate()
+      const error = await order.validateSync()
+      assert.ok(error)
+      assert.equal(error.errors.customer_id.properties.message, 'Path `{PATH}` is required.')
     } catch (err) {
-      assert.ok(err)
-      assert.equal(err.errors.customer_id.properties.message, 'Path `{PATH}` is required.')
+      throw err
     }
   })
 
   it('errors when customer is not in a valid shipping zone', async () => {
-    let customer = new Customer(distantCustomer)
-    customer = await customer.save()
-    badOrder.customer_id = customer._id
     try {
+      let badCustomer = new Customer(distantCustomer)
+      badCustomer = await badCustomer.save()
+      badOrder.customer_id = badCustomer._id
       const order = new Order(badOrder)
-      await order.validate()
+      const error = await new Promise(resolve => order.validate(resolve))
+      assert.ok(error)
+      assert.equal(error.errors.customer_id.properties.message, 'Customer ID {VALUE} does not have a valid delivery destination!')
     } catch (err) {
-      assert.ok(err)
-      assert.equal(err.errors.customer_id.properties.message, 'Customer ID {VALUE} does not have a valid delivery destination!')
+      throw err
     }
   })
 })

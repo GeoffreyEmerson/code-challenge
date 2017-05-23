@@ -98,8 +98,7 @@ describe('orders endpoint', () => {
       assert.equal(response.status, 'success')
       assert.ok(response.order)
     } catch (err) {
-      console.log('error', err)
-      assert.notOk(err)
+      throw err
     }
   })
 
@@ -131,8 +130,7 @@ describe('orders endpoint', () => {
       assert.equal(orderList.length, 1)
       Object.keys(testOrder).forEach(key => assert.equal(testOrder[key], orderList[0][key]))
     } catch (err) {
-      console.log('error', err)
-      assert.notOk(err)
+      throw err
     }
   })
 
@@ -192,8 +190,7 @@ describe('orders endpoint', () => {
         })
       })
     } catch (err) {
-      console.log('err:', err)
-      assert.notOk(err)
+      throw err
     }
   })
 })

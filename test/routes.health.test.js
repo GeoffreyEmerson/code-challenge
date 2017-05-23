@@ -23,8 +23,7 @@ describe('healthcheck endpoint', () => {
       assert.include(result.header['content-type'], 'application/json')
       assert.equal(result.body.status, 'ok')
     } catch (err) {
-      console.log('err', err)
-      assert.notOk(err)
+      throw err
     }
   })
 })

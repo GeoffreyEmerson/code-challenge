@@ -32,7 +32,8 @@ describe('user model', () => {
   it('thows error for missing username', async () => {
     try {
       newUser1 = new User(badUser)
-      await newUser1.validate()
+      const result = await newUser1.validate()
+      assert.notOk(result)
     } catch (err) {
       assert.ok(err)
       assert.equal(err.errors.username.message, 'Path `username` is required.')
@@ -42,7 +43,8 @@ describe('user model', () => {
   it('thows error for missing password', async () => {
     try {
       newUser1 = new User(badUser2)
-      await newUser1.validate()
+      const result = await newUser1.validate()
+      assert.notOk(result)
     } catch (err) {
       assert.ok(err)
       assert.equal(err.errors.password.message, 'Path `password` is required.')
@@ -52,7 +54,8 @@ describe('user model', () => {
   it('thows error for missing email', async () => {
     try {
       newUser1 = new User(badUser3)
-      await newUser1.validate()
+      const result = await newUser1.validate()
+      assert.notOk(result)
     } catch (err) {
       assert.ok(err)
       assert.equal(err.errors.email.message, 'Path `email` is required.')

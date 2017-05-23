@@ -24,4 +24,7 @@ const postOrder = async (req, res, next) => {
   }
 }
 
-module.exports = {getOrders, postOrder}
+module.exports = {
+  getOrders,
+  postOrder
+}

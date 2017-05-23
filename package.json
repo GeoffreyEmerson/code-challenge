@@ -1,7 +1,7 @@
 {
   "name": "code-challenge",
   "version": "1.0.0",
-  "description": "A short code Node.js code challenge",
+  "description": "A short Node.js code challenge",
   "main": "index.js",
   "scripts": {
     "start": "NODE_ENV=demo node index.js",
@@ -36,8 +36,7 @@
     "express": "^4.15.2",
     "jsonwebtoken": "^7.4.1",
     "mockgoose": "^7.3.1",
-    "mongoose": "^4.9.9",
-    "q": "^1.5.0"
+    "mongoose": "^4.9.9"
   },
   "standard": {
     "globals": [
